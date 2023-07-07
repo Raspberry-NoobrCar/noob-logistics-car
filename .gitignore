@@ -1,0 +1,19 @@
+# 忽略python缓存文件
+__pycache__/
+*/__pycache__
+*.pyc
+
+# 忽略test
+test/
+
+*.png
+emailPhoto/
+*.jpg
+goodsQRPhoto/
+.ipynb_checkpoints/
+
+.DS_Store
+.venv/
+.env
+
+*.zip
