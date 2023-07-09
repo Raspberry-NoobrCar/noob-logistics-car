@@ -12,12 +12,10 @@ class LoadGoods:
         self.good_list = []
         self.target_list = []
         self.initQueue()
-        self.count = 0
 
     def load_goods(self):
         time.sleep(1)
         start_time = time.time()
-        # self.count = self.count + 1
         while True:
             infor = decode_qrcode()
             if infor:
@@ -26,30 +24,20 @@ class LoadGoods:
                 loadSuccess_voice()
                 break
             else:
-                # self.count = self.count + 1
-                # print("couont", self.count)
-                # if self.count % 3 != 0:
-                #     infor = None
-                #     break
                 loadGood_voice()
                 print("没有读到二维码,请调整位置重新出示")
             
-            random_number = random.randint(0, 10)
-            if time.time() - start_time > random_number:
-                # count = count - 1
-            # if count % 3 != 0: 
-                infor = None
-                break
+            # 超时退出
+            if time.time() - start_time > 60:
+                # infor = None
+                return None
 
         if infor:       
             print("装入infor给货物")
             good = Goods(infor[0],infor[2],infor[1],infor[3],infor[4])
             self.good_list.append(good)
-            # TODO 前端: 给前端发送装载的货物信息
             if self.emitter != None:
                 self.emitter.loadGood(good.getGno())
-        else:
-            self.addGoodsQueue()
 
     def clearGoods(self):
         self.good_list = []
@@ -74,7 +62,6 @@ class LoadGoods:
         # loadSuccess_voice()
         self.good_list.append(good)
 
-        # TODO 前端: 给前端发送装载的货物信息
         if self.emitter != None:
                 gno = good.getGno()
                 print("告知前端装货 ", gno)
@@ -83,6 +70,7 @@ class LoadGoods:
     def setEmitter(self, emitter):
         self.emitter = emitter
 
+    # 测试用
     def initQueue(self):
         self.goods_queue = Queue()
 
@@ -113,7 +101,7 @@ if __name__ == '__main__':
     for i in range(3):
         loadGoods.load_goods()
 
-#     # 装货流程
+#     # 测试装货流程
 #     loadGoods = LoadGoods()
 #     good1 = Goods("G01",(4,4),"M@gmail.com","小明","1")
 #     good2 = Goods("G02",(2,3),"F@gmail.com","BO","2")

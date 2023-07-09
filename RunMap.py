@@ -18,8 +18,6 @@ class RunMap:
         self.good_list = []
         self.target_list = []
         self.returnFlag = False
-        self.signCount = 0
-
     
     def setInfo(self, car, start, startTurnVector, gridMap, good_list, target_list):
         self.runCar = car
@@ -100,18 +98,10 @@ class RunMap:
                 self.runCar.run(15,20)
                 time.sleep(0.5)
             elif numDirection == 1: # 向右一步
-                if next_yx == (3, 1):
-                    self.runCar.spin_right(15, 15)
-                    time.sleep(1.4)
-                else:
-                    self.runCar.run(10,12)
-                    time.sleep(0.3)
-                    self.runCar.spin_right(15, 15)
-                    time.sleep(0.7)
-                # self.runCar.run(10,12)
-                # time.sleep(0.3)
-                # self.runCar.spin_right(15, 15)
-                # time.sleep(0.7)
+                self.runCar.run(10,12)
+                time.sleep(0.3)
+                self.runCar.spin_right(15, 15)
+                time.sleep(0.7)
             elif numDirection == 2:    # 向左一步
                 self.runCar.run(12,15)
                 time.sleep(0.3)
@@ -139,7 +129,6 @@ class RunMap:
                 if next_yx in self.target_list:
 
                     print("目的地 ", next_yx, " 到达！")
-                    # TODO 前端: 返回前端到达目标点
                     if self.emitter != None:
                         self.emitter.handleMove({ "action": "arrive", "xy": next_yx})
 
@@ -190,7 +179,6 @@ class RunMap:
                     # 如果没有遇到交通标志 检测障碍物
                     else:
                         flag_Obstacle = False
-                        # TODO 函数: 检测障碍物 
                         flag_Obstacle = self.runCar.tackleDetection()
 
                         if flag_Obstacle:
@@ -226,10 +214,6 @@ class RunMap:
 
     # 到达目的地 检查货物
     def checkGoods(self, destination):
-        # fake
-        # gno = good.getGno()
-        # if gno == 
-
         for good in self.good_list:
             # 目的地相同 且 未被送过/签收
             if destination == good.getDestination() and good.getSigned() == False :
@@ -251,6 +235,7 @@ class RunMap:
                         send_mail(email_address, "ArriveMessage", recipientName, destination, "")
                     # 播音及时签收
                     delivery_voice()
+                    checkFlag = False
 
                 elif good.getReceivingMothd() == "2": # 接收方式是 本人签收
                     # 发送验证二维码
@@ -259,9 +244,9 @@ class RunMap:
                     # 语音播报出示二维码
                     scanQR_voice()
                     # 验证二维码
-                    self.checkValQR(gno)
+                    checkFlag = self.checkValQR(gno)
 
-                if self.emitter != None:
+                if self.emitter != None and checkFlag:
                     print("告知前端卸货 ", gno)
                     self.emitter.unLoadGood(gno)   
 
@@ -271,14 +256,13 @@ class RunMap:
     # 记得在终点清空 货物list
     
     def checkValQR(self,gno):  
-        self.signCount = self.signCount + 1  
         # 获取开始时间
         start_time = time.time()
         while True:
             infor = read_valQRode()
             if infor == gno:
                 signIn_voice()
-                break
+                return True
             elif infor:
                 # 二维码不匹配
                 notMatch_voice()
@@ -287,12 +271,9 @@ class RunMap:
                 print("没有读到二维码,请调整位置重新出示")
 
             # 判断是否超过
-            if time.time() - start_time > 7:
-                if self.signCount % 2 == 0 :
-                    signIn_voice()
-                else:
-                    timeout_voice()
-                break
+            if time.time() - start_time > 60:
+                timeout_voice()
+                return False
 
 
     def followTrafficRules(self, label_TrafficSigns):

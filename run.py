@@ -37,31 +37,16 @@ def run(emitter = None):
        
     # -------------------
 
-#     try:
-#         # 开始移动
-#         while True:
-            
-#             target_list_copy = target_list.copy()
-#             goods_list_copy = goods_list.copy()
-#             runMap = RunMap(runCar, start, selfTurnVector, grid, goods_list_copy, target_list_copy)
-#             runMap.initPath()
-#             runMap.followTrafficRules()
-            
-#     except ValueError as e: 
-#         print(str(e)) 
-#     except Exception as e:  # 其他异常情况
-#         print(str(e)) 
-
     while True:
         # 装货流程
         if goods_list == []:
             print("装货过程")
-            # loading_voice()     # 装货提示音
+            loading_voice()     # 装货提示音
 
             for _ in range(4):
                 loadGoods.load_goods()
 
-            # loadFinished_voice()
+            loadFinished_voice()
 
             goods_list = loadGoods.getGoodsList()
             # 初始化 目的地list
